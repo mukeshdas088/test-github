@@ -1,6 +1,6 @@
 name : multi-line command
 on : push
-job :
+jobs :
   multi_line_job :
     run_on: ubuntu-latest
     steps:
