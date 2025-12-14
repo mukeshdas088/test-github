@@ -2,7 +2,7 @@ name : multi-line command
 on : push
 jobs :
   multi_line_job :
-    run_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
 
     - name : checkout
