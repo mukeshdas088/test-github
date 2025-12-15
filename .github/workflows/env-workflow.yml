@@ -37,9 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test] # Ensures test runs first
     
-    # Example of using the ENV variable in an 'if' condition (requires ${{ }} syntax)
-    if: ${{ env.ENVIRONMENT_TYPE == 'staging' }}
-    
     steps:
       - name: Deploy to Target Environment
         run: |
