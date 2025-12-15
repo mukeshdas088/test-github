@@ -1,37 +1,59 @@
-name : Generate ASCII Artwork 
-on : push
+name: Cowsay Artifact Demo
 
-jobs :
+on: push
 
-  Build_job :
-    runs-on : ubuntu-latest
-    steps :
+jobs:
 
-    - name : Install cowsay program
-      run : sudo apt-get install cowsay -y
+  build_job:
+    runs-on: ubuntu-latest
+    steps:
 
-    - name : Execute Cowsay Command
-      run : cowsay -f dragon "Beware of the artifacts!" >> dragon.txt
+    - name: Install cowsay program
+      # Note: 'sudo apt-get update' is often needed before installing packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install cowsay -y
 
-    - name : sleep for 30 seconds
-      run : sleep 30
+    - name: Execute Cowsay Command and Create File
+      # Creates the dragon.txt file in the workspace
+      run: cowsay -f dragon "Beware of the artifacts!" > dragon.txt
 
-  Test_job :
-    needs : Build_job
-    runs-on : ubuntu-latest
-    steps :
+    # --- FIX 1: UPLOAD THE ARTIFACT ---
+    - name: Upload Cowsay Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cowsay-output  # Unique name for the artifact
+        path: dragon.txt     # The file to save
+        retention-days: 1    # Optional: How long to keep the artifact
 
-    - name : sleep for 10 seconds
-      run : sleep 10
+  test_job:
+    needs: build_job
+    runs-on: ubuntu-latest
+    steps:
 
-    - name : Text file exists
-      run : grep -i "dragon" dragon.txt
+    # --- FIX 2: DOWNLOAD THE ARTIFACT ---
+    - name: Download Cowsay Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: cowsay-output  # Must match the upload name
+        # By default, it downloads to the current working directory, 
+        # so 'dragon.txt' will be in './dragon.txt'
 
+    - name: Text file exists and contains "dragon"
+      # This step now successfully finds dragon.txt
+      run: grep -i "dragon" dragon.txt
+      
+  deploy_job:
+    needs: [test_job]
+    runs-on: ubuntu-latest
+    steps:
 
-  Deploy_job :
-    needs : [Test_job]
-    runs-on : ubuntu-latest
-    steps :
+    # --- FIX 3: DOWNLOAD THE ARTIFACT AGAIN ---
+    - name: Download Cowsay Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: cowsay-output
 
-    - name : Read text file
-      run : cat dragon.txt
+    - name: Read text file
+      # This step now successfully finds and prints dragon.txt
+      run: cat dragon.txt
