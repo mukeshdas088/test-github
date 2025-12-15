@@ -1,0 +1,23 @@
+name: Deploy External Script Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-external-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout Repository Code
+        # This step downloads the entire repository, including the 'scripts/' folder.
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Set Execute Permission
+        # Give the script permission to run.
+        run: chmod +x ./scripts/deploy.sh
+
+      - name: 🚀 Execute External Deployment Script
+        # Run the script using its correct relative path from the repository root.
+        run: ./scripts/deploy.sh
