@@ -31,8 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Checkout Code
-      uses: actions/checkout@v4
+ #   - name: Checkout Code
+ #     uses: actions/checkout@v4
 
     # --- FIX 2: DOWNLOAD THE ARTIFACT ---
     - name: Download Cowsay Artifact
