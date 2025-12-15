@@ -16,7 +16,7 @@ jobs:
 
     - name: Execute Cowsay Command and Create File
       # Creates the dragon.txt file in the workspace
-      run: cowsay -f dragon "Beware of the artifacts!" > dragon.txt
+      run: cowsay -f dragon "Beware of the dragon!" > dragon.txt
 
     # --- FIX 1: UPLOAD THE ARTIFACT ---
     - name: Upload Cowsay Artifact
