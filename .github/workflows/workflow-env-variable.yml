@@ -1,97 +1,52 @@
-name: File Persistence Across Jobs - Functional
+name: Global ENV Variable
 
 on: [push]
 
-# WORKFLOW LEVEL ENVIRONMENT VARIABLE (The "Syllabus" rule)
-# Available to all jobs and steps for shared, static configuration.
+# 🌎 WORKFLOW LEVEL ENVIRONMENT VARIABLE
+# This variable is available everywhere in this entire workflow file.
 env:
-  BUILD_FILE_NAME: 'build_report.txt' # Shared configuration: The filename
-  REPORT_HEADER: '--- Build Report ---'
-
+  PROJECT_VERSION: 'v2.5.1-beta'
+  ENVIRONMENT_TYPE: 'staging'
+  
 jobs:
-  # 1. BUILD JOB: Create the file and upload the initial artifact
+  # 1. BUILD JOB
   build:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Create and Write Initial File Content
+      - name: Report Build Version
         run: |
-          # Use ${{ env.VAR }} for initial write
-          echo "${{ env.REPORT_HEADER }}" > ${{ env.BUILD_FILE_NAME }}
-          echo "Build Start Time: $(date)" >> ${{ env.BUILD_FILE_NAME }}
-          echo "File created in the BUILD job." >> ${{ env.BUILD_FILE_NAME }}
+          echo "Building package for version: ${{ env.PROJECT_VERSION }}"
+          echo "Configuration target: ${{ env.ENVIRONMENT_TYPE }}"
+          echo "Building package..."
 
-      - name: Show Initial File Content
-        run: cat ${{ env.BUILD_FILE_NAME }}
-        
-      - name: Upload Initial Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployment-artifacts # This name is fixed and shared
-          path: ${{ env.BUILD_FILE_NAME }} # Uses the global filename
-
-  # 2. TEST JOB: Download, Modify, Delete old, and Re-upload
+  # 2. TEST JOB
   test:
     runs-on: ubuntu-latest
-    needs: [build]
-    
-    # 💡 FIX 1: Add the permissions block to grant the job artifact management rights
-    permissions:
-      actions: write # Required to delete/manage workflow artifacts
-      contents: read # Required to checkout code/read basic information
-      
-    env:
-      REPORT_HEADER: '*** Test Results ***' 
-
+    needs: [build] # Ensures build runs first
     steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: deployment-artifacts
-          path: .
-          
-      - name: Append Test Results (Using Correct Shell Access)
+      - name: Run Tests
         run: |
-          REPORT_PATH=${{ env.BUILD_FILE_NAME }} 
-          # Access the overridden variable using $VAR_NAME
-          echo "$REPORT_HEADER" >> "$REPORT_PATH"
-          echo "Test Job ran at: $(date)" >> "$REPORT_PATH"
-          echo "All tests passed successfully." >> "$REPORT_PATH"
+          echo "--- Starting Tests ---"
+          # The variable is automatically available here too.
+          echo "Testing against code base: ${{ env.PROJECT_VERSION }}"
+          echo "Running unit tests for ${{ env.ENVIRONMENT_TYPE }} environment..."
+          # Simulate setting up test environment using the variable
+          ./setup-test-env --version ${{ env.PROJECT_VERSION }}
 
-      # FIX 2: Removed the 'token' input from this step
-      - name: 🗑️ Delete Previous Artifact
-        uses: geekyeggo/delete-artifact@v2 
-        with:
-          name: deployment-artifacts # Still required
-          # token: ${{ secrets.GITHUB_TOKEN }} <-- THIS LINE WAS REMOVED
-          
-      - name: Re-upload Updated Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployment-artifacts
-          path: ${{ env.BUILD_FILE_NAME }} 
-
-      - name: Show Updated File Content
-        run: cat ${{ env.BUILD_FILE_NAME }}
-        
-
-  # 3. DEPLOY JOB: Read the final file content
+  # 3. DEPLOY JOB
   deploy:
     runs-on: ubuntu-latest
-    needs: [test] # Ensures sequence
+    needs: [test] # Ensures test runs first
+    
+    # Example of using the ENV variable in an 'if' condition (requires ${{ }} syntax)
+    if: ${{ env.ENVIRONMENT_TYPE == 'staging' }}
     
     steps:
-      - name: Download Final Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: deployment-artifacts
-          path: .
-
-      - name: Read and Verify Final Report
+      - name: Deploy to Target Environment
         run: |
-          REPORT_FILE=${{ env.BUILD_FILE_NAME }} 
-          echo "--- Final Deployment Check ---"
-          
-          # Read the contents of the final file using the environment variable
-          echo "Contents of the $REPORT_FILE file:"
-          cat "$REPORT_FILE"
+          echo "--- Deployment Started ---"
+          # The variable is available again for deployment logic.
+          echo "Deploying ${{ env.PROJECT_VERSION }} to ${{ env.ENVIRONMENT_TYPE }}..."
+          # Command example
+          ./deploy-script --target ${{ env.ENVIRONMENT_TYPE }} --version ${{ env.PROJECT_VERSION }}
+          echo "Deployment successful."
