@@ -1,7 +1,6 @@
 name: Global ENV Variable
 
 on: [push]
-
 # 🌎 WORKFLOW LEVEL ENVIRONMENT VARIABLE
 # This variable is available everywhere in this entire workflow file.
 env:
