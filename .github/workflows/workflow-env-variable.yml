@@ -30,13 +30,16 @@ jobs:
           name: deployment-artifacts # This name is fixed and shared
           path: ${{ env.BUILD_FILE_NAME }} # Uses the global filename
 
-  # 2. TEST JOB: Download, Modify (Override test), Delete old, and Re-upload
+  # 2. TEST JOB: Download, Modify, Delete old, and Re-upload
   test:
     runs-on: ubuntu-latest
-    needs: [build] # Ensures sequence
+    needs: [build]
     
-    # JOB LEVEL ENVIRONMENT VARIABLE (Overrides the global REPORT_HEADER for this job)
-    # The shell will prioritize this over the workflow-level value.
+    # 💡 FIX 1: Add the permissions block to grant the job artifact management rights
+    permissions:
+      actions: write # Required to delete/manage workflow artifacts
+      contents: read # Required to checkout code/read basic information
+      
     env:
       REPORT_HEADER: '*** Test Results ***' 
 
@@ -50,23 +53,18 @@ jobs:
       - name: Append Test Results (Using Correct Shell Access)
         run: |
           REPORT_PATH=${{ env.BUILD_FILE_NAME }} 
-          echo "File Path from Global Env: $REPORT_PATH"
-          
-          # FIX: Access the overridden variable using $VAR_NAME (shell syntax).
-          # This ensures the Job-Level value ('*** Test Results ***') is used.
+          # Access the overridden variable using $VAR_NAME
           echo "$REPORT_HEADER" >> "$REPORT_PATH"
-          
           echo "Test Job ran at: $(date)" >> "$REPORT_PATH"
           echo "All tests passed successfully." >> "$REPORT_PATH"
 
-      # FIX for (409) Conflict: Must delete the existing artifact before uploading the new one.
+      # FIX 2: Removed the 'token' input from this step
       - name: 🗑️ Delete Previous Artifact
         uses: geekyeggo/delete-artifact@v2 
         with:
-          name: deployment-artifacts
-          # The token is required for permissions to delete
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+          name: deployment-artifacts # Still required
+          # token: ${{ secrets.GITHUB_TOKEN }} <-- THIS LINE WAS REMOVED
+          
       - name: Re-upload Updated Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -75,6 +73,7 @@ jobs:
 
       - name: Show Updated File Content
         run: cat ${{ env.BUILD_FILE_NAME }}
+        
 
   # 3. DEPLOY JOB: Read the final file content
   deploy:
