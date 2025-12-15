@@ -1,23 +1,22 @@
-name: File Persistence Across Jobs - No Outputs
+name: File Persistence Across Jobs - Functional
 
 on: [push]
 
 # WORKFLOW LEVEL ENVIRONMENT VARIABLE (The "Syllabus" rule)
-# This variable is automatically available to ALL jobs and ALL steps.
+# Available to all jobs and steps for shared, static configuration.
 env:
   BUILD_FILE_NAME: 'build_report.txt' # Shared configuration: The filename
   REPORT_HEADER: '--- Build Report ---'
 
 jobs:
-  # 1. BUILD JOB: Create the file, write to it, and save it as an Artifact
+  # 1. BUILD JOB: Create the file and upload the initial artifact
   build:
     runs-on: ubuntu-latest
     
-
     steps:
       - name: Create and Write Initial File Content
         run: |
-          # We use the Workflow-level env variable directly.
+          # Use ${{ env.VAR }} for initial write
           echo "${{ env.REPORT_HEADER }}" > ${{ env.BUILD_FILE_NAME }}
           echo "Build Start Time: $(date)" >> ${{ env.BUILD_FILE_NAME }}
           echo "File created in the BUILD job." >> ${{ env.BUILD_FILE_NAME }}
@@ -25,19 +24,19 @@ jobs:
       - name: Show Initial File Content
         run: cat ${{ env.BUILD_FILE_NAME }}
         
-      - name: Upload File Artifact
+      - name: Upload Initial Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deployment-artifacts
-          # Accessing the global env variable directly.
-          path: ${{ env.BUILD_FILE_NAME }} 
+          name: deployment-artifacts # This name is fixed and shared
+          path: ${{ env.BUILD_FILE_NAME }} # Uses the global filename
 
-  # 2. TEST JOB: Download the file and append more lines
+  # 2. TEST JOB: Download, Modify (Override test), Delete old, and Re-upload
   test:
     runs-on: ubuntu-latest
-    needs: [build] # We still need this for sequence (file must be built first)
+    needs: [build] # Ensures sequence
     
     # JOB LEVEL ENVIRONMENT VARIABLE (Overrides the global REPORT_HEADER for this job)
+    # The shell will prioritize this over the workflow-level value.
     env:
       REPORT_HEADER: '*** Test Results ***' 
 
@@ -48,32 +47,39 @@ jobs:
           name: deployment-artifacts
           path: .
           
-      - name: Check File Path and Append Test Results
-        # The file name is NOT accessed via 'needs' context, 
-        # but directly from the global env.
+      - name: Append Test Results (Using Correct Shell Access)
         run: |
-          REPORT_PATH=${{ env.BUILD_FILE_NAME }} # Accessing global env directly
+          REPORT_PATH=${{ env.BUILD_FILE_NAME }} 
           echo "File Path from Global Env: $REPORT_PATH"
           
-          # The file is now available in the root of the runner's workspace
-          echo "${{ env.REPORT_HEADER }}" >> "$REPORT_PATH"
+          # FIX: Access the overridden variable using $VAR_NAME (shell syntax).
+          # This ensures the Job-Level value ('*** Test Results ***') is used.
+          echo "$REPORT_HEADER" >> "$REPORT_PATH"
+          
           echo "Test Job ran at: $(date)" >> "$REPORT_PATH"
           echo "All tests passed successfully." >> "$REPORT_PATH"
 
-      - name: Show Updated File Content
-        run: cat ${{ env.BUILD_FILE_NAME }}
+      # FIX for (409) Conflict: Must delete the existing artifact before uploading the new one.
+      - name: 🗑️ Delete Previous Artifact
+        uses: geekyeggo/delete-artifact@v2 
+        with:
+          name: deployment-artifacts
+          # The token is required for permissions to delete
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Re-upload Updated Artifact
         uses: actions/upload-artifact@v4
         with:
           name: deployment-artifacts
-          # Accessing the global env variable directly.
           path: ${{ env.BUILD_FILE_NAME }} 
+
+      - name: Show Updated File Content
+        run: cat ${{ env.BUILD_FILE_NAME }}
 
   # 3. DEPLOY JOB: Read the final file content
   deploy:
     runs-on: ubuntu-latest
-    needs: [test] # Wait for the test job to finish
+    needs: [test] # Ensures sequence
     
     steps:
       - name: Download Final Artifact
@@ -84,7 +90,7 @@ jobs:
 
       - name: Read and Verify Final Report
         run: |
-          REPORT_FILE=${{ env.BUILD_FILE_NAME }} # Accessing global env directly
+          REPORT_FILE=${{ env.BUILD_FILE_NAME }} 
           echo "--- Final Deployment Check ---"
           
           # Read the contents of the final file using the environment variable
