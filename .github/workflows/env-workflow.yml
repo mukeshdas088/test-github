@@ -27,7 +27,6 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
         
-    steps:
       - name: Run Tests
         run: |
           echo "--- Starting Tests ---"
