@@ -1,0 +1,92 @@
+name: File Persistence Across Jobs - No Outputs
+
+on: [push]
+
+# WORKFLOW LEVEL ENVIRONMENT VARIABLE (The "Syllabus" rule)
+# This variable is automatically available to ALL jobs and ALL steps.
+env:
+  BUILD_FILE_NAME: 'build_report.txt' # Shared configuration: The filename
+  REPORT_HEADER: '--- Build Report ---'
+
+jobs:
+  # 1. BUILD JOB: Create the file, write to it, and save it as an Artifact
+  build:
+    runs-on: ubuntu-latest
+    
+
+    steps:
+      - name: Create and Write Initial File Content
+        run: |
+          # We use the Workflow-level env variable directly.
+          echo "${{ env.REPORT_HEADER }}" > ${{ env.BUILD_FILE_NAME }}
+          echo "Build Start Time: $(date)" >> ${{ env.BUILD_FILE_NAME }}
+          echo "File created in the BUILD job." >> ${{ env.BUILD_FILE_NAME }}
+
+      - name: Show Initial File Content
+        run: cat ${{ env.BUILD_FILE_NAME }}
+        
+      - name: Upload File Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-artifacts
+          # Accessing the global env variable directly.
+          path: ${{ env.BUILD_FILE_NAME }} 
+
+  # 2. TEST JOB: Download the file and append more lines
+  test:
+    runs-on: ubuntu-latest
+    needs: [build] # We still need this for sequence (file must be built first)
+    
+    # JOB LEVEL ENVIRONMENT VARIABLE (Overrides the global REPORT_HEADER for this job)
+    env:
+      REPORT_HEADER: '*** Test Results ***' 
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-artifacts
+          path: .
+          
+      - name: Check File Path and Append Test Results
+        # The file name is NOT accessed via 'needs' context, 
+        # but directly from the global env.
+        run: |
+          REPORT_PATH=${{ env.BUILD_FILE_NAME }} # Accessing global env directly
+          echo "File Path from Global Env: $REPORT_PATH"
+          
+          # The file is now available in the root of the runner's workspace
+          echo "${{ env.REPORT_HEADER }}" >> "$REPORT_PATH"
+          echo "Test Job ran at: $(date)" >> "$REPORT_PATH"
+          echo "All tests passed successfully." >> "$REPORT_PATH"
+
+      - name: Show Updated File Content
+        run: cat ${{ env.BUILD_FILE_NAME }}
+
+      - name: Re-upload Updated Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-artifacts
+          # Accessing the global env variable directly.
+          path: ${{ env.BUILD_FILE_NAME }} 
+
+  # 3. DEPLOY JOB: Read the final file content
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test] # Wait for the test job to finish
+    
+    steps:
+      - name: Download Final Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-artifacts
+          path: .
+
+      - name: Read and Verify Final Report
+        run: |
+          REPORT_FILE=${{ env.BUILD_FILE_NAME }} # Accessing global env directly
+          echo "--- Final Deployment Check ---"
+          
+          # Read the contents of the final file using the environment variable
+          echo "Contents of the $REPORT_FILE file:"
+          cat "$REPORT_FILE"
