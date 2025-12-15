@@ -4,7 +4,7 @@ on : push
 jobs :
 
   Build_job :
-    runs_on : ubuntu-latest
+    runs-on : ubuntu-latest
     steps :
 
     - name : Install cowsay program
@@ -18,7 +18,7 @@ jobs :
 
   Test_job :
     needs : Build_job
-    runs_on : ubuntu-latest
+    runs-on : ubuntu-latest
     steps :
 
     - name : sleep for 10 seconds
@@ -30,7 +30,7 @@ jobs :
 
   Deploy_job :
     needs : [Test_job]
-    runs_on : ubuntu-latest
+    runs-on : ubuntu-latest
     steps :
 
     - name : Read text file
