@@ -1,8 +1,8 @@
 name: Global ENV Variable
 
 on: [push]
+
 # 🌎 WORKFLOW LEVEL ENVIRONMENT VARIABLE
-# This variable is available everywhere in this entire workflow file.
 env:
   PROJECT_VERSION: 'v2.5.1-beta'
   ENVIRONMENT_TYPE: 'staging'
@@ -12,41 +12,51 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4 # ⬅️ FIX: Added Checkout to the build job
+        
       - name: Report Build Version
         run: |
           echo "Building package for version: ${{ env.PROJECT_VERSION }}"
           echo "Configuration target: ${{ env.ENVIRONMENT_TYPE }}"
+          # Assuming build scripts are run here, which might also require files
           echo "Building package..."
 
-# 2. TEST JOB
+  # 2. TEST JOB
   test:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      # 💡 FIX: ADD THE CHECKOUT STEP HERE
       - name: Checkout Repository Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # This is correct
         
       - name: Run Tests
         run: |
           echo "--- Starting Tests ---"
-          # The variable is automatically available here too.
           echo "Testing against code base: ${{ env.PROJECT_VERSION }}"
           echo "Running unit tests for ${{ env.ENVIRONMENT_TYPE }} environment..."
-          # Simulate setting up test environment using the variable
+          
+          # 💡 CRITICAL CHECK: Verify that 'setup-test-env' is in the root.
+          # If it's in a subdirectory (e.g., 'scripts/'), you must use the full path:
+          # ./scripts/setup-test-env --version ${{ env.PROJECT_VERSION }}
+          
+          # Assuming the script is in the root:
           ./setup-test-env --version ${{ env.PROJECT_VERSION }}
 
   # 3. DEPLOY JOB
   deploy:
     runs-on: ubuntu-latest
-    needs: [test] # Ensures test runs first
+    needs: [test] 
     
     steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4 # ⬅️ FIX: Added Checkout to the deploy job
+        
       - name: Deploy to Target Environment
         run: |
           echo "--- Deployment Started ---"
-          # The variable is available again for deployment logic.
           echo "Deploying ${{ env.PROJECT_VERSION }} to ${{ env.ENVIRONMENT_TYPE }}..."
-          # Command example
+          
+          # CRITICAL CHECK: Verify that 'deploy-script' is in the root.
           ./deploy-script --target ${{ env.ENVIRONMENT_TYPE }} --version ${{ env.PROJECT_VERSION }}
           echo "Deployment successful."
