@@ -18,10 +18,15 @@ jobs:
           echo "Configuration target: ${{ env.ENVIRONMENT_TYPE }}"
           echo "Building package..."
 
-  # 2. TEST JOB
+# 2. TEST JOB
   test:
     runs-on: ubuntu-latest
-    needs: [build] # Ensures build runs first
+    needs: [build]
+    steps:
+      # 💡 FIX: ADD THE CHECKOUT STEP HERE
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+        
     steps:
       - name: Run Tests
         run: |
