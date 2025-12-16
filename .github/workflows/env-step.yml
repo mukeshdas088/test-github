@@ -1,4 +1,4 @@
-name: Step ENV Variable Override
+name: Step ENV Variable
 
 on: [push]
 
