@@ -1,17 +1,24 @@
-name: Global ENV Variable Job Level
+name: Step ENV Variable Override
 
 on: [push]
+
+# 🌎 WORKFLOW LEVEL ENV (Used as a fallback/default)
+env:
+  PROJECT_VERSION: 'v1.0.0-default'
+  ENVIRONMENT_TYPE: 'dev'
   
 jobs:
+  
   # 1. BUILD JOB
   build:
     runs-on: ubuntu-latest
-    # ✅ CORRECT: Environment variables defined at the JOB LEVEL
-    env:
-      PROJECT_VERSION: 'v2.5.00000-beta'
-      ENVIRONMENT_TYPE: 'build'
     steps:
+        
       - name: Report Build Version
+        # ✅ STEP LEVEL ENV: Variables defined here only apply to this 'run' block
+        env:
+          PROJECT_VERSION: 'v2.5.00000-beta'
+          ENVIRONMENT_TYPE: 'build'
         run: |
           echo "Building package for version: ${{ env.PROJECT_VERSION }}"
           echo "Configuration target: ${{ env.ENVIRONMENT_TYPE }}"
@@ -20,28 +27,38 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: [build]
-    # ✅ CORRECT: Environment variables defined at the JOB LEVEL
-    env:
-      PROJECT_VERSION: 'v2.5.1-beta'
-      ENVIRONMENT_TYPE: 'staging'
     steps:
-      - name: Run Tests
+      
+      - name: Run Unit Tests (Overridden)
+        # ✅ STEP LEVEL ENV: Overrides flow/job vars for this step
+        env:
+          PROJECT_VERSION: 'v2.5.1-beta-test'
+          ENVIRONMENT_TYPE: 'staging-test'
         run: |
           echo "--- Starting Tests ---"
           echo "Testing against code base: ${{ env.PROJECT_VERSION }}"
           echo "Running unit tests for ${{ env.ENVIRONMENT_TYPE }} environment..."
+
+      - name: Run Integration Tests (Using Defaults/Fallback)
+        # ❌ NO STEP LEVEL ENV: Will fall back to any JOB or WORKFLOW level env vars
+        run: |
+          echo "--- Starting Integration Tests ---"
+          echo "Using default version: ${{ env.PROJECT_VERSION }}"
+          echo "Using default env: ${{ env.ENVIRONMENT_TYPE }}"
             
 
   # 3. DEPLOY JOB
   deploy:
     runs-on: ubuntu-latest
     needs: [test] 
-    # ✅ CORRECT: Environment variables defined at the JOB LEVEL
-    env:
-      PROJECT_VERSION: 'v2.5.1111111-beta'
-      ENVIRONMENT_TYPE: 'prod'
+    
     steps:
-      - name: Deploy to Target Environment
+
+      - name: Deploy to Production
+        # ✅ STEP LEVEL ENV: Final override for the critical step
+        env:
+          PROJECT_VERSION: 'v2.5.1111111-beta-prod'
+          ENVIRONMENT_TYPE: 'prod'
         run: |
           echo "--- Deployment Started ---"
           echo "Deploying ${{ env.PROJECT_VERSION }} to ${{ env.ENVIRONMENT_TYPE }}..."

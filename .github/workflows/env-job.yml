@@ -1,0 +1,48 @@
+name: Global ENV Variable Job Level
+
+on: [push]
+  
+jobs:
+  # 1. BUILD JOB
+  build:
+    runs-on: ubuntu-latest
+    # ✅ CORRECT: Environment variables defined at the JOB LEVEL
+    env:
+      PROJECT_VERSION: 'v2.5.00000-beta'
+      ENVIRONMENT_TYPE: 'build'
+    steps:
+      - name: Report Build Version
+        run: |
+          echo "Building package for version: ${{ env.PROJECT_VERSION }}"
+          echo "Configuration target: ${{ env.ENVIRONMENT_TYPE }}"
+          
+  # 2. TEST JOB
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    # ✅ CORRECT: Environment variables defined at the JOB LEVEL
+    env:
+      PROJECT_VERSION: 'v2.5.1-beta'
+      ENVIRONMENT_TYPE: 'staging'
+    steps:
+      - name: Run Tests
+        run: |
+          echo "--- Starting Tests ---"
+          echo "Testing against code base: ${{ env.PROJECT_VERSION }}"
+          echo "Running unit tests for ${{ env.ENVIRONMENT_TYPE }} environment..."
+            
+
+  # 3. DEPLOY JOB
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test] 
+    # ✅ CORRECT: Environment variables defined at the JOB LEVEL
+    env:
+      PROJECT_VERSION: 'v2.5.1111111-beta'
+      ENVIRONMENT_TYPE: 'prod'
+    steps:
+      - name: Deploy to Target Environment
+        run: |
+          echo "--- Deployment Started ---"
+          echo "Deploying ${{ env.PROJECT_VERSION }} to ${{ env.ENVIRONMENT_TYPE }}..."
+          echo "Deployment successful."
