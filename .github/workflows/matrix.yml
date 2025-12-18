@@ -1,0 +1,19 @@
+name: matrix-kodekloud
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  matrix_job:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04, windows-latest]
+        image: [hello-world, alpine]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: running image on ${{ matrix.os }}
+        # Note: Accessing matrix variables requires the 'matrix.' prefix
+        run: docker run ${{ matrix.image }}
