@@ -2,7 +2,7 @@ name: matrix-kodekloud
 
 on:
   push:
-  workflow_dispatch:
+#  workflow_dispatch:
 
 jobs:
   matrix_job:
