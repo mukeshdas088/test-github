@@ -1,6 +1,8 @@
 name: Cowsay Artifact Demo
 
-on: push
+on: 
+  workflow_dispatch :
+# push
 
 jobs:
 
