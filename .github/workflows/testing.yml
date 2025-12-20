@@ -12,6 +12,7 @@ jobs:
     
     steps:
       - name: Step One
+        if : github.ref == 'refs/heads/main'
         env:
           STEP_LEVEL: "I am only in Step One" # Step level
         run: |
