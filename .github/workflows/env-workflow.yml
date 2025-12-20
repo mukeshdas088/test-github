@@ -2,7 +2,7 @@ name: Global ENV Variable Workflow Level
 
 on: [push]
 
-# 🌎 WORKFLOW LEVEL ENVIRONMENT VARIABLE
+# 🌎 WORKFLOW LEVEL ENV VARIABLE
 env:
   PROJECT_VERSION: 'v2.5.1-beta'
   ENVIRONMENT_TYPE: 'staging'
