@@ -1,0 +1,22 @@
+name: workflow filters and activities
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/*'
+  pull_request:
+    types:
+      - opened
+      - closed
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  activity_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test jobs
+        run: echo "github event is - '${{ github.event_name }}'"
