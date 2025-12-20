@@ -1,0 +1,27 @@
+name: Scope Demo
+on:
+  push :
+env:
+  WF_LEVEL: "I am everywhere" # Workflow level
+
+jobs:
+  context-testing:
+    runs-on: ubuntu-latest
+    env:
+      JOB_LEVEL: "I am in all steps of this job" # Job level
+    if : github.ref == 'refs/heads/main'
+    steps:
+      - name: Step One
+
+        env:
+          STEP_LEVEL: "I am only in Step One" # Step level
+        run: |
+          echo "Can see $WF_LEVEL"
+          echo "Can see $JOB_LEVEL"
+          echo "Can see $STEP_LEVEL"
+
+      - name: Step Two
+        run: |
+          echo "Can see $WF_LEVEL"
+          echo "Can see $JOB_LEVEL"
+          echo "CANNOT see $STEP_LEVEL" # This will be empty
