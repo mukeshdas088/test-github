@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JOB_LEVEL: "I am in all steps of this job" # Job level
-    
+    if : github.ref == 'refs/heads/main'
     steps:
       - name: Step One
-        if : github.ref == 'refs/heads/main'
+
         env:
           STEP_LEVEL: "I am only in Step One" # Step level
         run: |
