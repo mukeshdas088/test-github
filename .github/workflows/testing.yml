@@ -1,4 +1,6 @@
 name: Scope Demo
+on:
+  push :
 env:
   WF_LEVEL: "I am everywhere" # Workflow level
 
