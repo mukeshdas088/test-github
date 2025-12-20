@@ -1,0 +1,36 @@
+name: Matrix jobs
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  my_matrix_execution:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # Fixed typo from "fall-fast"
+      max-parallel: 2
+      matrix: 
+        os: [ubuntu-latest, ubuntu-20.04, windows-latest]
+        image: [hello-world, alpine, busybox]
+
+        exclude: 
+          # You must list each combination explicitly
+          - os: ubuntu-20.04
+            image: alpine
+          - os: ubuntu-20.04
+            image: busybox
+          - os: windows-latest
+            image: alpine
+          - os: windows-latest
+            image: busybox
+
+        include:
+          # This adds a brand new job to the matrix
+          - os: ubuntu-latest
+            image: nginx
+
+    steps:
+      - name: Check docker
+        run: docker info
+      - name: running image on ${{ matrix.os }}
+        run: docker run ${{ matrix.image }}
