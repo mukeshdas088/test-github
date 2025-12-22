@@ -1,0 +1,25 @@
+name: debug-logging 
+
+on: 
+  push:
+  workflow_dispatch:
+
+env:
+  var1: foo  # Variables are defined as key: value pairs (no $)
+  var2: bar
+
+jobs:
+  debug_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout Repo
+        uses: actions/checkout@v4 
+
+      - name: check variable username
+        run: |
+          echo "username ===== ${{ env.var1 }} ${{ env.var2 }}"
+          # If you want to save a new variable to GITHUB_ENV:
+          echo "NEW_VAR=some_value" >> "$GITHUB_ENV"
+        
+      - name: Printing var2
+        run: echo "${{ env.var2 }}" # Use ${{ env.VAR_NAME }} to access variables
