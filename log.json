@@ -1,0 +1,76 @@
+{
+  "id": 58679581783,
+  "run_id": 20423569567,
+  "workflow_name": "debug-logging",
+  "head_branch": "main",
+  "run_url": "https://api.github.com/repos/mukeshdas088/test-github/actions/runs/20423569567",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOQoRxy88AAAANqZNcVw",
+  "head_sha": "47a0e07adf7caa90c1ab25378ce41e6d4f70503c",
+  "url": "https://api.github.com/repos/mukeshdas088/test-github/actions/jobs/58679581783",
+  "html_url": "https://github.com/mukeshdas088/test-github/actions/runs/20423569567/job/58679581783",
+  "status": "completed",
+  "conclusion": "success",
+  "created_at": "2025-12-22T06:14:22Z",
+  "started_at": "2025-12-22T06:14:28Z",
+  "completed_at": "2025-12-22T06:14:33Z",
+  "name": "debug_job",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2025-12-22T06:14:29Z",
+      "completed_at": "2025-12-22T06:14:30Z"
+    },
+    {
+      "name": "checkout Repo",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2025-12-22T06:14:30Z",
+      "completed_at": "2025-12-22T06:14:31Z"
+    },
+    {
+      "name": "check variable username",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2025-12-22T06:14:31Z",
+      "completed_at": "2025-12-22T06:14:31Z"
+    },
+    {
+      "name": "Printing var2",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2025-12-22T06:14:31Z",
+      "completed_at": "2025-12-22T06:14:31Z"
+    },
+    {
+      "name": "Post checkout Repo",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2025-12-22T06:14:31Z",
+      "completed_at": "2025-12-22T06:14:32Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2025-12-22T06:14:32Z",
+      "completed_at": "2025-12-22T06:14:32Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/mukeshdas088/test-github/check-runs/58679581783",
+  "labels": [
+    "ubuntu-latest"
+  ],
+  "runner_id": 1000000124,
+  "runner_name": "GitHub Actions 1000000124",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}
