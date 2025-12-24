@@ -1,0 +1,42 @@
+name : workflow_inputs
+on :
+    workflow_dispatch :
+        inputs:
+            run_test :
+                description : "RUN TEST ? TYPE - BOOLEN"
+                type : boolen
+                required : true
+            test_type :
+                description : "choice"
+                type : choice
+                options :
+                    - unit
+                    - intigration
+                    - all
+                required : true
+            environments :
+                description : "choose an environment"
+                type : environment
+                required : true
+            build_number :
+                description : "Specify int type"
+                type : number
+                required : false
+            message : 
+                description : "message"
+                type : "string"
+                required : true
+
+    jobs :
+        build_and_deploy :
+        runs-on : ubuntu-latest
+        steps :
+            - name : print workflow
+              run : |
+                echo "run: ${{ input.run_test }}"
+
+            - name : run result
+              if : ${{ inputs.run_test == true }}
+              run : echo "Testing ........"
+
+
