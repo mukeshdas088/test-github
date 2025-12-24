@@ -1,42 +1,46 @@
-name : workflow_inputs
-on :
-    workflow_dispatch :
-        inputs:
-            run_test :
-                description : "RUN TEST ? TYPE - BOOLEN"
-                type : boolen
-                required : true
-            test_type :
-                description : "choice"
-                type : choice
-                options :
-                    - unit
-                    - intigration
-                    - all
-                required : true
-            environments :
-                description : "choose an environment"
-                type : environment
-                required : true
-            build_number :
-                description : "Specify int type"
-                type : number
-                required : false
-            message : 
-                description : "message"
-                type : "string"
-                required : true
+name: workflow_inputs
 
-    jobs :
-        build_and_deploy :
-        runs-on : ubuntu-latest
-        steps :
-            - name : print workflow
-              run : |
-                echo "run: ${{ input.run_test }}"
+on:
+  workflow_dispatch:
+    inputs:
+      run_test:
+        description: "RUN TEST? TYPE - BOOLEAN"
+        type: boolean
+        required: true
+      test_type:
+        description: "Select test type"
+        type: choice
+        options:
+          - unit
+          - integration
+          - all
+        required: true
+      environments:
+        description: "Choose an environment"
+        type: environment
+        required: true
+      build_number:
+        description: "Specify int type"
+        type: number
+        required: false
+      message: 
+        description: "Message"
+        type: string
+        required: true
 
-            - name : run result
-              if : ${{ inputs.run_test == true }}
-              run : echo "Testing ........"
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print workflow inputs
+        run: |
+          echo "Run test: ${{ github.event.inputs.run_test }}"
+          echo "Test type: ${{ github.event.inputs.test_type }}"
+          echo "Environment: ${{ github.event.inputs.environments }}"
+          echo "Build number: ${{ github.event.inputs.build_number }}"
+          echo "Message: ${{ github.event.inputs.message }}"
 
-
+      - name: Run result
+        # Note: Boolean inputs are passed as the strings "true" or "false"
+        if: ${{ github.event.inputs.run_test == 'true' }}
+        run: echo "Testing environment ${{ github.event.inputs.environments }} for build ${{ github.event.inputs.build_number }}..."
