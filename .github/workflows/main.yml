@@ -3,7 +3,7 @@ on: [push]
 
 jobs:
   order_snack:
-    uses: ./.github/workflows/vending_machine.yml
+    uses: mukeshdas088/test-github/.github/workflows/vending_machine.yml
     with:
       snack_type: "Chocolate"
     secrets:
