@@ -6,7 +6,7 @@ jobs:
     # Use the local path to the file you just created
     uses: ./.github/workflows/printer.yml
     with:
-      user_name: "Beginner"
+      user_name: "mak"
     secrets:
       api_key: ${{ secrets.MY_PASSWORD }}
 
