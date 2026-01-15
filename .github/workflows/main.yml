@@ -13,4 +13,4 @@ jobs:
     needs: order_snack
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'The machine says: ${{ needs.order_snack.outputs.status }}'
+      - run: echo 'The machine says - ${{ needs.order_snack.outputs.status }}'
