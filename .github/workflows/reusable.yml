@@ -1,0 +1,10 @@
+name: Main Project App
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  call-simple-task:
+    # Syntax: {owner}/{repo}/{path}/{file}@{ref}
+    uses: ./.github/workflows/simple-hello.yml
