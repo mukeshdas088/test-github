@@ -1,16 +1,17 @@
-name: Customer Order
+name: Manager Workflow
 on: [push]
 
 jobs:
-  order_snack:
-    uses: mukeshdas088/test-github/.github/workflows/vending_machine.yml
+  call-printer:
+    # Use the local path to the file you just created
+    uses: ./.github/workflows/printer.yml
     with:
-      snack_type: "Chocolate"
+      user_name: "Beginner"
     secrets:
-      vending_key: ${{ secrets.MY_PASSWORD }}
+      api_key: ${{ secrets.MY_PASSWORD }}
 
-  thank_you:
-    needs: order_snack
+  results:
+    needs: call-printer
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'The machine says - ${{ needs.order_snack.outputs.status }}'
+      - run: echo "The template says ${{ needs.call-printer.outputs.job_status }}"

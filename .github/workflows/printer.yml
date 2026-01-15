@@ -1,0 +1,27 @@
+name: Reusable Printer
+on:
+  workflow_call:
+    inputs:
+      user_name:
+        type: string
+        required: true
+    secrets:
+      api_key:
+        required: true
+    outputs:
+      job_status:
+        value: ${{ jobs.print_job.outputs.step_msg }}
+
+jobs:
+  print_job:
+    runs-on: ubuntu-latest
+    outputs:
+      step_msg: ${{ steps.final.outputs.msg }}
+    steps:
+      - id: final
+        run: |
+          echo "Hello ${{ inputs.user_name }}"
+          echo "Checking secret length: ${#KEY}"
+          echo "msg=Successfully printed for ${{ inputs.user_name }}" >> $GITHUB_OUTPUT
+        env:
+          KEY: ${{ secrets.api_key }}
