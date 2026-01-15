@@ -1,5 +1,6 @@
 name: workflow_inputs
 
+
 on:
   workflow_dispatch:
     inputs:
