@@ -7,5 +7,5 @@ on:
 jobs:
   call-simple-task:
     # Syntax: {owner}/{repo}/{path}/{file}@{ref}
-    
-    uses: ./.github/workflows/simple-hello.yml
+
+    uses: mukeshdas088/test-github/.github/workflows/simple-hello.yml@main
