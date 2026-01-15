@@ -1,0 +1,16 @@
+name: Customer Order
+on: [push]
+
+jobs:
+  order_snack:
+    uses: ./.github/workflows/vending_machine.yml
+    with:
+      snack_type: "Chocolate"
+    secrets:
+      vending_key: ${{ secrets.MY_PASSWORD }}
+
+  thank_you:
+    needs: order_snack
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "The machine says: ${{ needs.order_snack.outputs.status }}"
