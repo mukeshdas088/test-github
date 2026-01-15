@@ -1,0 +1,24 @@
+name: Vending Machine
+on:
+  workflow_call:
+    inputs:
+      snack_type:       # Input: What you want
+        type: string
+    secrets:
+      vending_key:      # Secret: Needed to open the machine
+        required: true
+    outputs:
+      status:           # Output: Success message sent back
+        value: ${{ jobs.deliver.outputs.outcome }}
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    outputs:
+      outcome: ${{ steps.step1.outputs.msg }}
+    steps:
+      - id: step1
+        run: |
+          echo "Using secret key to unlock..."
+          echo "Delivering your ${{ inputs.snack_type }}!"
+          echo "msg=Enjoy your ${{ inputs.snack_type }}!" >> $GITHUB_OUTPUT
