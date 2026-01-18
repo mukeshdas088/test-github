@@ -1,5 +1,5 @@
-name: 'Custom Greeting'
-description: 'A simple composite action to greet the user'
+name: 'Custom Greeting with Artifact'
+description: 'Greets the user and saves the greeting to a file'
 
 inputs:
   user-name:
@@ -10,12 +10,16 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Say Hello
-      shell: bash
-      run: echo "Hello ${{ inputs.user-name }}! Welcome to your first composite action."
-
-    - name: System Info
+    - name: Create Greeting File
       shell: bash
       run: |
-        echo "The runner is: $RUNNER_OS"
-        echo "The current directory is: $(pwd)"
+        echo "Hello ${{ inputs.user-name }}!" > greeting.txt
+        echo "This file was created at $(date)" >> greeting.txt
+        echo "My Name is Khan and I'm not a terrorist"  >> greeting.txt
+        date >>  greeting.txt
+
+    - name: Upload Local Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: user-greeting-report
+        path: greeting.txt
