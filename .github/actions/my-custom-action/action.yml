@@ -1,0 +1,21 @@
+name: 'Custom Greeting'
+description: 'A simple composite action to greet the user'
+
+inputs:
+  user-name:
+    description: 'The name to greet'
+    required: true
+    default: 'GitHub Explorer'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Say Hello
+      shell: bash
+      run: echo "Hello ${{ inputs.user-name }}! Welcome to your first composite action."
+
+    - name: System Info
+      shell: bash
+      run: |
+        echo "The runner is: $RUNNER_OS"
+        echo "The current directory is: $(pwd)"

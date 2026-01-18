@@ -1,0 +1,16 @@
+name: Test Composite Action
+
+on: 
+  workflow_dispatch: # This allows you to run it manually from the Actions tab
+
+jobs:
+  run-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run My Action
+        uses: ./.github/actions/my-custom-action
+        with:
+          user-name: 'Mukesh'
